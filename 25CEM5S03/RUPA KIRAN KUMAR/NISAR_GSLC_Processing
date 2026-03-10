@@ -1,0 +1,6 @@
+import polsartools as pst
+def main():
+	inFile =r"C:\Users\LENOVO\Desktop\NISAR_L2_PR_GSLC_003_005_D_077_4005_DHDH_A_20251017T132451_20251017T132526_X05007_N_F_J_001.h5"
+	pst.import_nisar_gslc(inFile,azlks=20,rglks=10,mat='T3')
+if __name__=='__main__':
+	main()
