@@ -212,11 +212,6 @@ This makes the file compatible with GIS software such as:
   <em>Figure 1:NISAR GSLC HV Backscatter image</em>
 </p>
 
-```
-nisar_hv_backscatter.tif
-```
-
-The GeoTIFF represents **HV polarization radar backscatter intensity in decibels (dB).**
 
 ---
 
