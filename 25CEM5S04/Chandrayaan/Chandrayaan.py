@@ -2,7 +2,7 @@ from spectral import envi
 import numpy as np
 import matplotlib.pyplot as plt
 
-# ---- paths ---- 
+# ---- paths ----
 hdr_path = r"E:\SEM 2\TMHRS\ASSIGN 2\MOON_SPECTRAL\ch2_iir_nci_20250804T1241466686_d_img_d18.hdr"
 qub_path = r"E:\SEM 2\TMHRS\ASSIGN 2\MOON_SPECTRAL\ch2_iir_nci_20250804T1241466686_d_img_d18.qub"
 
