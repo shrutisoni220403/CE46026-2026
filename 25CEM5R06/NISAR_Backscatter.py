@@ -1,7 +1,7 @@
 """
 Author: Charvi Sree
 Roll Number: 25CEM5R06
-Course: CE46026 – Thematic Remote Sensing
+Course: CE46026 – THERMAL MICROWAVE AND HYPERSPECTRAL Remote Sensing
 
 Description:
 This script reads NISAR GCOV SAR data stored in HDF5 format and
