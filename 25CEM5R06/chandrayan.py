@@ -1,7 +1,7 @@
 """
 Author: Charvi Sree
 Roll Number: YOUR_ROLL_NUMBER
-Course: CE46026 - Thematic Remote Sensing
+Course: CE46026 - Thermal, Microwave and Hyperspectral Remote Sensing
 Assignment: Chandrayaan-II Hyperspectral Data Plotting
 
 Description:
