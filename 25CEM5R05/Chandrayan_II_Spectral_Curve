@@ -1,0 +1,84 @@
+#MEENAKSHI PAUL
+#25CEM5R05
+
+
+import spectral.io.envi as envi
+import matplotlib.pyplot as plt
+import numpy as np
+
+# --------------------------------------------------
+# FILE PATHS
+# --------------------------------------------------
+hdr_path = r"C:\Users\Meenakshi paul\Desktop\IIRS\data\calibrated\20200209\ch2_iir_nci_20200209T0626392231_d_img_cnb.hdr"
+qub_path = r"C:\Users\Meenakshi paul\Desktop\IIRS\data\calibrated\20200209\ch2_iir_nci_20200209T0626392231_d_img_cnb.qub"
+
+# --------------------------------------------------
+# LOAD IMAGE
+# --------------------------------------------------
+img = envi.open(hdr_path, qub_path)
+data_cube = img.load()
+
+rows, cols, bands = data_cube.shape
+print("Data shape:", data_cube.shape)
+
+# --------------------------------------------------
+# YOUR PIXELS (UNCHANGED)
+# --------------------------------------------------
+pixels_to_plot = [
+    (100, 100),                 # Pixel at Row 100, Col 100
+    (200, 150),                 # Pixel at Row 200, Col 150
+    (img.nrows // 2, img.ncols // 2)  # Center pixel
+]
+
+# --------------------------------------------------
+# X AXIS
+# --------------------------------------------------
+if 'wavelength' in img.metadata:
+    x_axis = np.array(img.metadata['wavelength'], dtype=float)
+    x_label = "Wavelength (nm)"
+else:
+    x_axis = np.arange(bands)
+    x_label = "Band Number"
+
+# --------------------------------------------------
+# DUAL Y-AXIS PLOT
+# --------------------------------------------------
+fig, ax1 = plt.subplots(figsize=(10, 5))
+ax2 = ax1.twinx()
+
+plotted_any = False
+
+for r, c in pixels_to_plot:
+
+    # --------- CHECK IF PIXEL EXISTS ---------
+    if r >= rows or c >= cols:
+        print(f"Skipping pixel ({r}, {c}) → outside image bounds")
+        continue
+
+    # --------- EXTRACT SPECTRUM ---------
+    radiance = np.squeeze(data_cube[r, c, :])
+
+    # --------- DERIVE SCALED REFLECTANCE ---------
+    reflectance = radiance / np.max(radiance)
+
+    # --------- PLOT ---------
+    ax1.plot(x_axis, radiance, label=f"Radiance ({r},{c})")
+    ax2.plot(x_axis, reflectance, linestyle='--', label=f"Reflectance ({r},{c})")
+
+    plotted_any = True
+
+# --------------------------------------------------
+# LABELS & TITLE
+# --------------------------------------------------
+ax1.set_xlabel(x_label)
+ax1.set_ylabel("Radiance (W m⁻² sr⁻¹ µm⁻¹)")
+ax2.set_ylabel("Scaled Reflectance (unitless)")
+plt.title("Spectral Response – Dual Y-Axis (Radiance & Reflectance)")
+
+fig.legend(loc="upper right")
+ax1.grid(True)
+
+if not plotted_any:
+    print("No valid pixels were found to plot.")
+
+plt.show()
