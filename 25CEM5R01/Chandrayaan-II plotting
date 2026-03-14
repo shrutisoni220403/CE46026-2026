@@ -1,0 +1,100 @@
+Author: Atul Anand
+Roll Number: 25CEM5R01
+Course: Remote Sensing & Geoinformatics
+File Name: spectral_response_plot.py
+
+Description:
+This Python script reads hyperspectral satellite data stored in 
+ENVI format (.hdr and .qub files) and plots the spectral response 
+curve of selected pixels.
+
+Steps performed in this script:
+1. Load hyperspectral data using Spectral Python.
+2. Convert the dataset into a 3D NumPy array.
+3. Extract spectral values from selected pixels.
+4. Plot spectral response curves.
+
+Required Libraries:
+  1. spectral
+  2. numpy
+  3. matplotlib
+
+# Import required libraries
+import spectral.io.envi as envi
+import matplotlib.pyplot as plt
+import numpy as np
+
+# CONFIGURATION SECTION
+
+# Replace these paths with the location of your downloaded files
+# The .hdr file contains metadata and automatically links to the .qub file
+
+hdr_path = r"path/to/your/file.hdr"
+qub_path = r"path/to/your/file.qub"
+
+# LOAD HYPERSPECTRAL DATA
+try:
+    # Open ENVI hyperspectral file
+    img = envi.open(hdr_path, qub_path)
+
+    print("File Loaded Successfully!")
+    print(f"Image Dimensions: {img.nrows} Rows x {img.ncols} Cols x {img.nbands} Bands")
+
+    # Load the full hyperspectral cube into memory
+    # Note: Large hyperspectral images may require high RAM
+    print("Loading data into memory... please wait.")
+    data_cube = img.load()
+
+    print(f"Data Cube Shape: {data_cube.shape}")
+
+except Exception as e:
+    print(f"Error loading file: {e}")
+    print("Check your file paths and ensure both .hdr and .qub are in the same folder.")
+    exit()
+
+# PIXELS SELECTED FOR SPECTRAL ANALYSIS
+
+# These coordinates represent row and column locations
+# You can change them to observe spectral curves from different regions
+
+pixels_to_plot = [
+    (100, 100),                 # Pixel 1
+    (200, 150),                 # Pixel 2
+    (img.nrows // 2, img.ncols // 2)  # Center pixel
+]
+
+# GET WAVELENGTH INFORMATION
+
+# If wavelength values exist in metadata, use them for x-axis
+# Otherwise use band numbers
+
+if 'wavelength' in img.metadata:
+    wavelengths = [float(w) for w in img.metadata['wavelength']]
+    x_axis = wavelengths
+    x_label = "Wavelength (nm)"
+else:
+    x_axis = range(img.nbands)
+    x_label = "Band Number"
+
+# PLOT SPECTRAL RESPONSE CURVES
+
+plt.figure(figsize=(12, 6))
+
+for r, c in pixels_to_plot:
+
+    # Extract spectral values of the pixel across all bands
+    spectral_curve = data_cube[r, c, :]
+
+    # Plot spectral curve
+    plt.plot(x_axis, spectral_curve.flatten(), label=f'Pixel ({r}, {c})')
+
+
+# Add plot labels and styling
+plt.title(f"IIRS Spectral Response: {img.filename}")
+plt.xlabel(x_label)
+plt.ylabel("Radiance / Reflectance")
+plt.legend()
+plt.grid(True)
+
+# Display plot
+plt.show()
