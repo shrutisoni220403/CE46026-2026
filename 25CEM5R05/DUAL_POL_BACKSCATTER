@@ -1,0 +1,132 @@
+## MEENAKSHI PAUK
+## 25CEM5R05
+
+# STEP 1: Import Required Libraries
+import numpy as np
+import h5py
+import rasterio
+from rasterio.transform import from_origin
+from rasterio.crs import CRS
+
+
+# STEP 2: Define Input File Path
+gslc_file = r"D:\GEOINFORMATICS\TMHRS\BACKSCATTER IMAGE\NISAR_L2_PR_GSLC_010_089_A_176_2005_DHDH_A_20260115T101121_20260115T101156_X05009_N_F_J_001.h5"
+
+
+# STEP 3: Inspect HDF5 Structure
+with h5py.File(gslc_file, "r") as file:
+    def explore(name, obj):
+        print(name)
+    file.visititems(explore)
+
+
+# STEP 4: Load Dual Polarization Data (HH and HV)
+with h5py.File(gslc_file, "r") as file:
+    freqA = file["science/LSAR/GSLC/grids/frequencyA"]
+    
+    hh_pol = freqA["HH"]
+    hv_pol = freqA["HV"]
+    
+    rows, cols = hh_pol.shape
+    print("Image size:", rows, cols)
+
+
+# STEP 5: Search for Valid Pixel Location
+with h5py.File(gslc_file, "r") as file:
+    hh_pol = file["science/LSAR/GSLC/grids/frequencyA/HH"]
+    
+    found_pixel = False
+    
+    for r in range(0, rows, 2500):
+        for c in range(0, cols, 2500):
+            val = hh_pol[r, c]
+            
+            if not np.isnan(val.real):
+                print("Valid pixel located at:", r, c)
+                found_pixel = True
+                center_row = r
+                center_col = c
+                break
+        
+        if found_pixel:
+            break
+
+
+# STEP 6: Extract Subset Around Valid Pixel
+subset_size = 1500
+
+r0 = center_row - subset_size
+r1 = center_row + subset_size
+c0 = center_col - subset_size
+c1 = center_col + subset_size
+
+with h5py.File(gslc_file, "r") as file:
+    freqA = file["science/LSAR/GSLC/grids/frequencyA"]
+    
+    hh_subset = freqA["HH"][r0:r1, c0:c1]
+    hv_subset = freqA["HV"][r0:r1, c0:c1]
+
+
+# STEP 7: Read Spatial Metadata
+with h5py.File(gslc_file, "r") as file:
+    grid = file["science/LSAR/GSLC/grids/frequencyA"]
+
+    x_coords = grid["xCoordinates"][:]
+    y_coords = grid["yCoordinates"][:]
+
+    x_res = grid["xCoordinateSpacing"][()]
+    y_res = grid["yCoordinateSpacing"][()]
+
+    proj_code = grid["projection"][()]
+
+print("Pixel spacing:", x_res, y_res)
+print("Projection code:", proj_code)
+
+
+# STEP 8: Convert Complex Data to Backscatter (Power)
+hh_power = np.abs(hh_subset) ** 2
+hv_power = np.abs(hv_subset) ** 2
+
+hh_db = 10 * np.log10(hh_power + 1e-10)
+hv_db = 10 * np.log10(hv_power + 1e-10)
+
+
+# STEP 9: Handle NaN Values
+hh_db[np.isnan(hh_db)] = -9999
+hv_db[np.isnan(hv_db)] = -9999
+
+
+# STEP 10: Create Geo-Transform
+origin_x = x_coords[c0]
+origin_y = y_coords[r0]
+
+transform = from_origin(
+    origin_x,
+    origin_y,
+    x_res,
+    abs(y_res)
+)
+
+crs = CRS.from_epsg(int(proj_code))
+
+
+# STEP 11: Export Dual Polarization GeoTIFF
+output_file = r"D:\GEOINFORMATICS\TMHRS\BACKSCATTER IMAGE\nisar_dualpol_backscatter.tif"
+
+with rasterio.open(
+    output_file,
+    "w",
+    driver="GTiff",
+    height=hh_db.shape[0],
+    width=hh_db.shape[1],
+    count=2,                 # dual band output
+    dtype="float32",
+    crs=crs,
+    transform=transform,
+    nodata=-9999
+) as dst:
+    
+    dst.write(hh_db.astype("float32"), 1)   # Band 1 → HH
+    dst.write(hv_db.astype("float32"), 2)   # Band 2 → HV
+
+print("Dual polarization backscatter image exported successfully.")
