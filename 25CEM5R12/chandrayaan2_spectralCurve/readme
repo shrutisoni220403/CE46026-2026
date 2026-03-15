@@ -1,1 +1,50 @@
+Mission: Chandrayaan2
+Organization: ISRO
+Chandrayaan-2 IIRS Spectral Curve Extraction
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Overview
+This project processes Chandrayaan-2 Imaging Infrared Spectrometer (IIRS) calibrated data to extract and visualize spectral radiance curves from selected pixels.
 
+The script reads:
+
+.hdr metadata file
+
+.qub hyperspectral cube file
+
+It then constructs a 3D spectral cube (rows × columns × bands) and plots radiance vs wavelength for selected pixels.
+
+The output is a spectral curve plot saved as PNG.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Dataset:
+Sensor: Imaging Infrared Spectrometer (IIRS)
+Mission: Chandrayaan-2
+Agency: Indian Space Research Organisation
+Spectral range (approx.):
+0.8 µm – 5 µm
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Data format:
+| File   | Description                                          |
+| ------ | ---------------------------------------------------- |
+| `.hdr` | Metadata describing cube dimensions                  |
+| `.qub` | Binary hyperspectral cube containing radiance values |
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Features
+
+-Reads IIRS hyperspectral cube
+
+-Extracts spectral signatures
+
+-Handles negative radiance filtering
+
+-Generates spectral radiance plots
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Requirements
+
+Python libraries required:
+-numpy
+-matplotlib
+
+Saves high-resolution PNG output
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
