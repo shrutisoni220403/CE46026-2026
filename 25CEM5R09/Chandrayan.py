@@ -1,3 +1,12 @@
+# Author: Sneha Dey
+# Roll Number: 25CEM5R09
+# Course: Thermal Microwave and Hyperspectral Remote Sensing
+# Institute: NIT Warangal
+
+# Description:
+# This script generates Chandrayaan-II Spectral curve
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 
