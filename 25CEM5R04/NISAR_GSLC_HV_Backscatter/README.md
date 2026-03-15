@@ -207,6 +207,9 @@ This makes the file compatible with GIS software such as:
 
 # Output
 
+The script generates a GeoTIFF raster representing HV polarization backscatter
+values from the NISAR GSLC dataset in decibel (dB) scale.
+
 <img width="1380" height="974" alt="nisar" src="https://github.com/user-attachments/assets/14cd7d2e-fa01-422b-a08c-ba376f11da01" />
 
 <p align="center" >
