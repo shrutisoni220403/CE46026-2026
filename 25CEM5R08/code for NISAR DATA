@@ -1,0 +1,77 @@
+"""
+================================================================================
+Author      : Shruti Soni
+Roll No     : 25CEM5R01  (replace with your actual roll number)
+Program     : M.Tech Geoinformatics, NIT Warangal
+Course      : CE46026 - Thermal and Microwave Remote Sensing (2026)
+Assignment  : 5 - NISAR L2 GSLC Data Processing using polsartools
+--------------------------------------------------------------------------------
+Description :
+    This script processes a NISAR Level-2 Geocoded Single-Look Complex (GSLC)
+    HDF5 file using the polsartools library. It detects the available
+    polarization channels (HH, HV in this dataset), extracts the dual-pol
+    C2 covariance matrix elements (C11, C12_real, C12_imag, C22), applies
+    multi-looking (azimuth: 20 looks, range: 10 looks), and saves the output
+    as GeoTIFF files for further analysis in QGIS.
+
+    The output folder is created automatically at the same location as the
+    input .h5 file, named after the file itself.
+
+Input       : NISAR L2 GSLC .h5 file (dual-pol: DHDH acquisition mode)
+Output      : C2HX covariance matrix GeoTIFF files (C11, C12_real, C12_imag, C22)
+Dependencies: polsartools (v0.11), numpy, gdal (via conda-forge)
+
+Note        : Ensure the output directory is not open in Windows Explorer
+              before running, to avoid "Permission denied" errors on .tif files.
+================================================================================
+"""
+
+import polsartools as pst
+
+def main():
+    # -----------------------------------------------------------------------
+    # INPUT FILE
+    # Full path to the NISAR L2 GSLC HDF5 (.h5) file
+    # -----------------------------------------------------------------------
+    inFile = (
+        r"C:\Users\Shruti Soni\Documents\M TECH\SEM-2\THMRS\ASSIGNMENT 5"
+        r"\NISAR_L2_PR_GSLC_003_005_D_077_4005_DHDH_A_20251017T132451"
+        r"_20251017T132526_X05007_N_F_J_001.h5"
+    )
+
+    # -----------------------------------------------------------------------
+    # PROCESSING PARAMETERS
+    # azlks : Number of azimuth looks for multi-looking (reduces speckle noise)
+    # rglks : Number of range looks for multi-looking
+    # mat   : Output matrix type
+    #         'C2' → 2x2 Covariance matrix (standard for dual-pol data)
+    #         'T3' → 3x3 Coherency matrix (only valid for full quad-pol data)
+    #         Since this dataset is dual-pol (HH+HV), we use 'C2'
+    # -----------------------------------------------------------------------
+    azlks = 20   # Azimuth multi-look factor
+    rglks = 10   # Range multi-look factor
+    mat   = 'C2' # Matrix type: C2 for dual-pol (HH+HV)
+
+    # -----------------------------------------------------------------------
+    # IMPORT AND PROCESS
+    # polsartools detects polarization channels automatically from the HDF5
+    # file and extracts the covariance matrix elements as separate GeoTIFFs
+    # -----------------------------------------------------------------------
+    print(f"Starting NISAR GSLC processing...")
+    print(f"  File   : {inFile}")
+    print(f"  Matrix : {mat}  |  Az looks: {azlks}  |  Rg looks: {rglks}")
+    print()
+
+    pst.import_nisar_gslc(
+        inFile,
+        azlks=azlks,
+        rglks=rglks,
+        mat=mat
+    )
+
+    print("\nProcessing complete.")
+    print("Output GeoTIFFs saved in the C2HX sub-folder next to the .h5 file.")
+    print("Load C11.tif in QGIS and apply a pseudocolor ramp to visualize backscatter.")
+
+if __name__ == "__main__":
+    main()
